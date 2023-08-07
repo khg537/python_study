@@ -4,6 +4,8 @@ import pandas as pd
 import datetime
 import time
 
+import re
+
 class PLog:
     def __init__(self, dir_path=None, file_list = None):
         self.df = None
@@ -72,9 +74,16 @@ class PLog:
 
         dflists.columns = ['time', 'value']
         print(dflists)
-        dflists['time'] = pd.to_datetime(dflists['time'])
+
+        dflists['time'] = pd.to_datetime(dflists['time'], format='%H:%M:%S.%f').dt.time
+     
         dflists = dflists.sort_values(by='time')
-        dflists['time'] = dflists['time'].dt.time
+
+        # dflists['time'] = dflists['time'].dt.time
+
+        dflists['value'] = dflists['value'].apply(lambda x : "\n".join([x for x in x]))
+     
+        print(dflists.info())
 
         return dflists
 
@@ -92,7 +101,7 @@ class PLog:
                 i = 0
                 for line in lines:
                     i +=1
-                    line = line.strip()
+                    line = line.rstrip()
                     # print(i, line, sep=" ")
                     if ongoing == True and not line:
                         ongoing = False
@@ -157,8 +166,7 @@ class PLog:
                 return True
                 break
                 
-            else:
-                return False
+        else: return False
 
     def print_path(self):
         print("dir", self.dir)
