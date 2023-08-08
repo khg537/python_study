@@ -33,6 +33,24 @@ drop_cnt = 0
 
 form_class = uic.loadUiType("p5g_merge.ui")[0]
 
+class Thread1(QThread):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.file_df = None
+    
+    def run(self):
+       self.file_df = self.parent.Log.MergeFile()
+
+       t_time = datetime.datetime.now()
+       fname = t_time.strftime("Merge_%Y_%m_%d_%H_%M_%S.log")
+       self.file_df.to_csv(fname, sep='\t', index=False)
+       # print(self.file_df)
+       self.parent.label_select.setText(f"{fname} 생성")       
+       
+    def get_file_df(self):
+        return self.file_df
+
 
 class MyWindow(QMainWindow, form_class):
     def __init__(self):
@@ -51,7 +69,7 @@ class MyWindow(QMainWindow, form_class):
         self.PB_NOTEPAD.clicked.connect(self.RunNotepad)
         self.PB_QDIR.clicked.connect(self.RunQdir)
         
-        self.file_df = None
+        self.file_df = 123
         self.message_df = None
         
         self.cur_dir = self.ReadFileDir()
@@ -60,6 +78,8 @@ class MyWindow(QMainWindow, form_class):
         self.label_select.setText("0 개 선택")
         self.Log = PLog()
        
+        self.child_thread = Thread1(self)
+
         
     def OnDirFile(self):
                # fname = QFileDialog.getOpenFileName(self, 'Open file', "",
@@ -98,12 +118,16 @@ class MyWindow(QMainWindow, form_class):
         self.WriteFileDir()
 
     def MergeFile(self):
-        self.file_df = self.Log.MergeFile()
-        t_time = datetime.datetime.now()
-        fname = t_time.strftime("Merge_%Y_%m_%d_%H_%M_%S.log")
-        self.file_df.to_csv(fname, sep='\t', index=False)
-        # print(self.file_df)
-        self.label_select.setText(f"{fname} 생성")
+        # self.file_df = self.Log.MergeFile()
+        
+        self.child_thread.start()
+        self.label_select.setText(f"Merge File 생성 중......")
+        
+        # t_time = datetime.datetime.now()
+        # fname = t_time.strftime("Merge_%Y_%m_%d_%H_%M_%S.log")
+        # self.file_df.to_csv(fname, sep='\t', index=False)
+        # # print(self.file_df)
+        # self.label_select.setText(f"{fname} 생성")
         
 
     def ClearFile(self):
