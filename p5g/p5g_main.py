@@ -79,8 +79,7 @@ class MyWindow(QMainWindow, form_class):
         self.Log = PLog()
        
         self.child_thread = Thread1(self)
-
-        
+      
     def OnDirFile(self):
                # fname = QFileDialog.getOpenFileName(self, 'Open file', "",
         #                                 "All Files(*);; log Files(*.log)", '/home')
@@ -128,8 +127,7 @@ class MyWindow(QMainWindow, form_class):
         # self.file_df.to_csv(fname, sep='\t', index=False)
         # # print(self.file_df)
         # self.label_select.setText(f"{fname} 생성")
-        
-
+   
     def ClearFile(self):
         self.Log.clear_file()
         self.textBrowser.setPlainText("")
@@ -144,7 +142,6 @@ class MyWindow(QMainWindow, form_class):
         self.label_select.setText(f"{i+1}개 선택")
         
     def MsgFile(self):
-        
         self.message_df = self.Log.MakeMessage()
         self.message_df.columns = ['time', 'value']
 
@@ -174,7 +171,6 @@ class MyWindow(QMainWindow, form_class):
         if path.exists('Filedir.cfg'):
            with open("Filedir.cfg") as f:
                 return(f.readline().strip())
-          
         else:
             self.cur_dir = "c:\\"
             self.WriteFileDir()
@@ -191,8 +187,7 @@ class MyWindow(QMainWindow, form_class):
         
     def RunQdir(self):
         subprocess.call(["C:\\Program Files (x86)\\Q-Dir\\Q-Dir.exe"])
-
-        
+     
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     myWindow = MyWindow()
