@@ -65,10 +65,11 @@ class PLog:
                 if df.size >0:
                      dflists.append(df)
                 
-        
+        if self.file_list == None and self.dir == None: return  pd.DataFrame()
+
         print(dflists)
 
-        dflists = pd.concat(dflists)
+        if len(dflists) > 0: dflists = pd.concat(dflists)
 
         # dflists=dflists.apply(lambda x:x.str.strip(), axis=1)
 
@@ -159,7 +160,7 @@ class PLog:
     # list_df.to_csv('out.txt', sep='\t', index=False) 
     
     def CheckMessage(self, line):
-        messages = ['rrc_asn1PrtToStr', 'ngap_asn1PrtToStr']
+        messages = [ 'asn1PrtToStr_']
 
         for message in messages:
             if message in line:
