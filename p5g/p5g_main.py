@@ -42,8 +42,12 @@ class Thread1(QThread):
     def run(self):
        self.file_df = self.parent.Log.MergeFile()
 
-       t_time = datetime.datetime.now()
-       fname = t_time.strftime("Merge_%Y_%m_%d_%H_%M_%S.log")
+       if self.parent.Merge_dir:
+            fname = "DirMerge_" + self.parent.Merge_dir.split("/")[-1]
+       else:
+            t_time = datetime.datetime.now()
+            fname = t_time.strftime("Merge_%Y_%m_%d_%H_%M_%S.log")
+        
        self.file_df.to_csv(fname, sep='\t', index=False)
        # print(self.file_df)
        self.parent.label_select.setText(f"{fname} 생성")       
@@ -77,6 +81,8 @@ class MyWindow(QMainWindow, form_class):
         self.textBrowser.setPlainText("")
         self.label_select.setText("0 개 선택")
         self.Log = PLog()
+
+        self.Merge_dir = None
        
         self.child_thread = Thread1(self)
       
@@ -87,7 +93,8 @@ class MyWindow(QMainWindow, form_class):
         # Directory 를 선택합니다.
         folder = QFileDialog.getExistingDirectory(self, "Select Directory", self.cur_dir)
    
-        
+        self.Merge_dir = folder
+
         self.Log.add(folder, None)
         
         self.PrintFiles()
@@ -186,7 +193,7 @@ class MyWindow(QMainWindow, form_class):
         subprocess.call(["C:\\Program Files\\Notepad++\\notepad++.exe"])
         
     def RunQdir(self):
-        subprocess.call(["C:\\Program Files (x86)\\Q-Dir\\Q-Dir.exe"])
+        subprocess.call(["C:\\Program Files\\Q-Dir\\Q-Dir.exe"])
      
 if __name__ == "__main__":
     app = QApplication(sys.argv)
