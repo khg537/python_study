@@ -20,6 +20,23 @@ class PLog:
         except ValueError:
             # print("Incorrect data format({0}), should be YYYY-MM-DD".format(date_text))
             return False
+        
+    def extract_date(self, text):
+        #pattern = r'\[(\d{4}-\d{2}-\d{2}/\d{2}:\d{2}:\d{2}.\d{3})\]'
+        pattern = r'\d{4}-\d{2}-\d{2}/(\d{2}:\d{2}:\d{2}.\d{3})' 
+
+        # Use re.search to find the first match in the input string
+        match = re.search(pattern, text)
+
+        # Check if a match was found
+        if match:
+            timestamp = match.group(1)
+            print("Extracted timestamp:", timestamp)
+        else:
+            print("No timestamp found in the input string.")
+        
+        return timestamp   
+        
 
     def change_df(self, file_path):
         out_lists = []
@@ -29,12 +46,14 @@ class PLog:
                 for line in lines:
                     line_split = line.split(' ',1)
                     # print(line_split)
-                    if self.validate_date(line_split[0]):
+                    temp_date = self.extract_date(line_split[0])
+                    if self.validate_date(temp_date):
                             out_lists.append(line_split)
             except:
               print("reade error")
 
         self.df = pd.DataFrame(out_lists)
+        print("printdf", self.df)
 
     def add(self, dir_path, file_list = None):
         if dir_path != None:   self.dir = dir_path
@@ -60,7 +79,7 @@ class PLog:
         if self.file_list != None:               
             for file_path in self.file_list:
                 df = self.MakeDF(file_path)
-                print(df)
+                print("Make DF : ",df)
                 print(df.size)
                 if df.size >0:
                      dflists.append(df)
