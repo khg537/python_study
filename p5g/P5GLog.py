@@ -21,6 +21,14 @@ class PLog:
             # print("Incorrect data format({0}), should be YYYY-MM-DD".format(date_text))
             return False
         
+    def separate_data(self, line_data):
+        pattern1 = r'\d{2}:\d{2}:\d{2}.\d{6}' 
+
+        # Use re.search to find the first match in the input string
+        match = re.search(pattern1, line_data)
+        return match.group(0), line_data
+        
+        
     def extract_date(self, text):
         #pattern = r'\[(\d{4}-\d{2}-\d{2}/\d{2}:\d{2}:\d{2}.\d{3})\]'
         pattern = r'\d{4}-\d{2}-\d{2}/(\d{2}:\d{2}:\d{2}.\d{3})' 
@@ -38,22 +46,21 @@ class PLog:
         return timestamp   
         
 
-    def change_df(self, file_path):
-        out_lists = []
-        with open(file_path) as rfile:
-            try:
-                lines = rfile.readlines()
-                for line in lines:
-                    line_split = line.split(' ',1)
-                    # print(line_split)
-                    temp_date = self.extract_date(line_split[0])
-                    if self.validate_date(temp_date):
-                            out_lists.append(line_split)
-            except:
-              print("reade error")
+    # def change_df(self, file_path):
+    #     out_lists = []
+    #     with open(file_path) as rfile:
+    #         try:
+    #             lines = rfile.readlines()
+    #             for line in lines:
+    #                 line_split = line.split(' ',1)
+    #                 # print(line_split)
+    #                 temp_date = self.extract_date(line_split[0])
+    #                 if self.validate_date(temp_date):
+    #                         out_lists.append(line_split)
+    #         except:
+    #           print("reade error")
 
-        self.df = pd.DataFrame(out_lists)
-        print("printdf", self.df)
+    #     self.df = pd.DataFrame(out_lists)
 
     def add(self, dir_path, file_list = None):
         if dir_path != None:   self.dir = dir_path
@@ -68,33 +75,26 @@ class PLog:
 
                 for file in files:
                     file_path = os.path.join(root, file)
-                    print(file_path)
                     if os.path.getsize(file_path) > 0:
-                        #  print(file_path)
                         df = self.MakeDF(file_path)
-                        print(df.size)
+                        print(df)
                         if df.size >0:
                             dflists.append(df)
         
         if self.file_list != None:               
             for file_path in self.file_list:
                 df = self.MakeDF(file_path)
-                print("Make DF : ",df)
-                print(df.size)
+                print(df)
                 if df.size >0:
                      dflists.append(df)
                 
         if self.file_list == None and self.dir == None: return  pd.DataFrame()
-
-        print(dflists)
 
         if len(dflists) > 0: dflists = pd.concat(dflists)
 
         # dflists=dflists.apply(lambda x:x.str.strip(), axis=1)
 
         dflists.columns = ['time', 'value']
-        print(dflists)
-
         dflists['time'] = pd.to_datetime(dflists['time'], format='%H:%M:%S.%f').dt.time
      
         dflists = dflists.sort_values(by='time')
@@ -103,8 +103,6 @@ class PLog:
 
         dflists['value'] = dflists['value'].apply(lambda x : "\n".join([x for x in x]))
      
-        print(dflists.info())
-
         return dflists
 
     def MakeDF(self, file_path):
@@ -112,12 +110,11 @@ class PLog:
         cont_list = []
         ongoing = False
         
-        print("makedef", file_path)
-        check_message = False
+    #    check_message = False
         with open(file_path) as rfile:
             try:
                 lines = rfile.readlines()
-                # print(lines.size)
+
                 i = 0
                 for line in lines:
                     i +=1
@@ -131,15 +128,14 @@ class PLog:
                         cont_list = []
 
                     if not line:
-                        print("blank")
+                        # print("blank")
                         continue       
+                   
+                    time_part,  content_part = self.separate_data(line)
                     
-                    # line_split = line.split(' ',1)
-                    
-                    if ongoing == False and not self.validate_date( line.split(' ',1)[0]):
+                    if ongoing == False and not time_part:
                         continue
-                    # print(line_split[0])
-                    
+                   
                     if ongoing != False:
                         cont_list.append( line)
                     else:
@@ -156,7 +152,7 @@ class PLog:
 
 
             except:
-                print("reade error")    
+                print("reader error")    
 
         # for out_list in out_lists:
         # print(out_lists[15228])
