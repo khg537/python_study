@@ -49,7 +49,7 @@ class Thread1(QThread):
             t_time = datetime.datetime.now()
             fname = t_time.strftime("Merge_%Y_%m_%d_%H_%M_%S.log")
 
-        self.file_df.to_csv(fname, sep="\t", index=False)
+        self.file_df["value"].to_csv(fname, sep="\t", index=False)
         # print(self.file_df)
         self.parent.label_select.setText(f"{fname} 생성")
 
