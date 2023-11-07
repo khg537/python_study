@@ -25,9 +25,14 @@ class PLog:
         pattern1 = r'\d{2}:\d{2}:\d{2}.\d{6}' 
 
         # Use re.search to find the first match in the input string
-        match = re.search(pattern1, line_data)
-        return match.group(0), line_data
-        
+
+        try:
+                # Use re.search to find the first match in the input string
+                match = re.search(pattern1, line_data)
+
+                return match.group(0), line_data
+        except:
+                return None, None
         
     def extract_date(self, text):
         #pattern = r'\[(\d{4}-\d{2}-\d{2}/\d{2}:\d{2}:\d{2}.\d{3})\]'
@@ -142,11 +147,11 @@ class PLog:
                     
                         if self.CheckMessage(line):
                             ongoing = True
-                            time_p =  line.split(' ',1)[0]
-                            cont_list.append( line.split(' ',1)[1])
+                            time_p =  time_part
+                            cont_list.append(content_part)
                         else:
-                            time_p =  line.split(' ',1)[0]
-                            cont_list.append( line.split(' ',1)[1])
+                            time_p =  time_part
+                            cont_list.append( content_part)
                             out_lists.append([time_p, cont_list])                        
                             cont_list = []
 
